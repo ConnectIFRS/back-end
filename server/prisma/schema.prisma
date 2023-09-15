@@ -16,12 +16,12 @@ model Users {
   login     String   @unique
   password  String
   class     Classes  @relation(fields: [classId], references: [id])
-  classId   Int
   createdAt DateTime @default(now())
+  classId   Int
 }
 
 model Classes {
   id    Int     @id @default(autoincrement())
   class String
-  users Users[]
+  Users Users[]
 }
