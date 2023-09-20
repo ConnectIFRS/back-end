@@ -12,17 +12,20 @@ export async function authRoutes(app: FastifyInstance) {
             name: z.string(),
             login: z.string(),
             password: z.string(),
-            class: z.number()
-            // avatarUrl: z.string()
+            class: z.number(),
+            profilePic: z.string().optional()
         })
 
-        const { name, login, password, class: userClass } = bodySchema.parse(request.body)
+        const { name, login, password, class: userClass, profilePic } = bodySchema.parse(request.body)
 
+        const avatarUrl = profilePic ?? 'http://192.168.2.17:3333/uploads/profilePics/fc581326-d3f5-46bf-ac1a-30bcef3412d1.png'
 
         let user = await prisma.users.findUnique({
             where: {
               login,
-            },
+            }, include: {
+                class: true
+            }
           })
 
         if (!user) {
@@ -34,12 +37,19 @@ export async function authRoutes(app: FastifyInstance) {
                     name,
                     password: passwordHash,
                     classId: userClass,
+                    profilePic: avatarUrl
+                },
+                include: {
+                    class: true
                 }
             })
         }
         const token = app.jwt.sign(
             {
                 name: user.name,
+                class: user.class.class,
+                createdAt: user.createdAt,
+                profilePic: user.profilePic
             },
             {
                 sub: user.id,
@@ -60,7 +70,9 @@ export async function authRoutes(app: FastifyInstance) {
         let user = await prisma.users.findUnique({
             where: {
               login,
-            },
+            }, include: {
+                class: true
+            }
           })
           if (user) {
 
@@ -69,6 +81,9 @@ export async function authRoutes(app: FastifyInstance) {
                 const token = app.jwt.sign(
                     {
                         name: user.name,
+                        class: user.class.class,
+                        createdAt: user.createdAt,
+                        profilePic: user.profilePic
                     },
                     {
                         sub: user.id,
@@ -86,41 +101,53 @@ export async function authRoutes(app: FastifyInstance) {
         const { sub: userId } = request.user
 
     const paramsSchema = z.object({
-      id: z.string().uuid(),
+      id: z.string().uuid() 
     })
 
     const { id } = paramsSchema.parse(request.params)
 
     const bodySchema = z.object({
         name: z.string(),
+        profilePic: z.string().optional()
         // login: z.string(),
         // password: z.string(),
         // avatarUrl: z.string()
     })
 
-        const { name } = bodySchema.parse(request.body)
+        const { name, profilePic } = bodySchema.parse(request.body)
 
 
         let user = await prisma.users.findUniqueOrThrow({
             where: {
               id,
-            },
+            }, include: {
+                class: true
+            }
           })
 
           if (userId !== id) {
             return reply.status(401).send()
           }
             user = await prisma.users.update({
+                include: {
+                    class: true
+                },
                 where: {
                     id
                 },
-                data: {
+                data: profilePic ? {
                     name,
+                    profilePic
+                } : {
+                    name
                 }
             })
         const token = app.jwt.sign(
             {
                 name: user.name,
+                class: user.class.class,
+                createdAt: user.createdAt,
+                profilePic: user.profilePic
             },
             {
                 sub: user.id,

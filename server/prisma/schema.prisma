@@ -11,17 +11,47 @@ datasource db {
 }
 
 model Users {
-  id        String   @id @default(uuid())
-  name      String
-  login     String   @unique
-  password  String
-  class     Classes  @relation(fields: [classId], references: [id])
-  createdAt DateTime @default(now())
-  classId   Int
+  id         String     @id @default(uuid())
+  name       String
+  login      String     @unique
+  password   String
+  class      Classes    @relation(fields: [classId], references: [id])
+  classId    Int
+  createdAt  DateTime   @default(now())
+  profilePic String
+  Likes      Likes[]
+  Post       Post[]
+  Comments   Comments[]
 }
 
 model Classes {
   id    Int     @id @default(autoincrement())
   class String
   Users Users[]
+}
+
+model Post {
+  id       String     @id @default(uuid())
+  content  String?
+  user     Users      @relation(fields: [userId], references: [id])
+  userId   String
+  likes    Likes[]
+  Comments Comments[]
+}
+
+model Likes {
+  id     Int    @id @default(autoincrement())
+  user   Users  @relation(fields: [userId], references: [id])
+  userId String
+  Post   Post   @relation(fields: [postId], references: [id])
+  postId String
+}
+
+model Comments {
+  id      Int    @id @default(autoincrement())
+  user    Users  @relation(fields: [userId], references: [id])
+  userId  String
+  Post    Post   @relation(fields: [postId], references: [id])
+  postId  String
+  content String
 }
