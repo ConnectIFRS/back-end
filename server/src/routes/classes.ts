@@ -1,8 +1,4 @@
-/* eslint-disable prettier/prettier */
-import axios from 'axios'
-import { compare, hash } from 'bcrypt'
 import { FastifyInstance } from 'fastify'
-import { randomInt } from 'node:crypto'
 import { z } from 'zod'
 import { prisma } from '../lib/prisma'
 
@@ -28,7 +24,7 @@ export async function classesRoutes(app: FastifyInstance) {
 
         const classes = await prisma.classes.create({
             data: {
-                class : classe.class
+                className : classe.class
             }
         })
 

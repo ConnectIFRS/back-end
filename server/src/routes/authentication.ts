@@ -24,7 +24,7 @@ export async function authRoutes(app: FastifyInstance) {
             where: {
               login,
             }, include: {
-                class: true
+                className: true
             }
           })
 
@@ -40,14 +40,14 @@ export async function authRoutes(app: FastifyInstance) {
                     profilePic: avatarUrl
                 },
                 include: {
-                    class: true
+                    className: true
                 }
             })
         }
         const token = app.jwt.sign(
             {
                 name: user.name,
-                class: user.class.class,
+                className: user.className.className,
                 createdAt: user.createdAt,
                 profilePic: user.profilePic
             },
@@ -71,7 +71,7 @@ export async function authRoutes(app: FastifyInstance) {
             where: {
               login,
             }, include: {
-                class: true
+                className: true
             }
           })
           if (user) {
@@ -81,7 +81,7 @@ export async function authRoutes(app: FastifyInstance) {
                 const token = app.jwt.sign(
                     {
                         name: user.name,
-                        class: user.class.class,
+                        class: user.className.className,
                         createdAt: user.createdAt,
                         profilePic: user.profilePic
                     },
@@ -121,7 +121,7 @@ export async function authRoutes(app: FastifyInstance) {
             where: {
               id,
             }, include: {
-                class: true
+                className: true
             }
           })
 
@@ -130,7 +130,7 @@ export async function authRoutes(app: FastifyInstance) {
           }
             user = await prisma.users.update({
                 include: {
-                    class: true
+                    className: true
                 },
                 where: {
                     id
@@ -145,7 +145,7 @@ export async function authRoutes(app: FastifyInstance) {
         const token = app.jwt.sign(
             {
                 name: user.name,
-                class: user.class.class,
+                class: user.className.className,
                 createdAt: user.createdAt,
                 profilePic: user.profilePic
             },
