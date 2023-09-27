@@ -34,12 +34,14 @@ model Classes {
 }
 
 model Post {
-  id       String     @id @default(uuid())
-  content  String?
-  user     Users      @relation(fields: [userId], references: [id])
-  userId   String
-  Likes    Likes[]
-  Comments Comments[]
+  id        String     @id @default(uuid())
+  content   String
+  coverUrl  String
+  user      Users      @relation(fields: [userId], references: [id])
+  userId    String
+  Likes     Likes[]
+  Comments  Comments[]
+  createdAt DateTime   @default(now())
 }
 
 model Likes {
@@ -69,9 +71,8 @@ model Followers {
 }
 
 model Preferences {
-  id      Int    @id @default(autoincrement())
-  title   String
-  icon    String
-  Users   Users  @relation(fields: [usersId], references: [id])
-  usersId String
+  id    Int     @id @default(autoincrement())
+  title String
+  icon  String
+  Users Users[]
 }
