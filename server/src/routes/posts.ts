@@ -1,19 +1,17 @@
 import { FastifyInstance } from "fastify";
+import { request } from "http";
 import { z } from "zod";
 import { prisma } from "../lib/prisma";
 
 export async function postsRoutes(app: FastifyInstance) {
     app.addHook('preHandler', async (request) => {
-        await request.jwtVerify()
+         await request.jwtVerify()
     })
 
     app.get('/posts', async (request) => {
         const { sub: userId } = request.user
     
         const posts = await prisma.post.findMany({
-          where: {
-            userId,
-          },
           orderBy: {
             createdAt: 'desc',
           },
@@ -22,19 +20,35 @@ export async function postsRoutes(app: FastifyInstance) {
                 select: {
                     className: true,
                     name: true,
-                    profilePic: true
+                    profilePic: true,
+                    id: true
                 }
+            }, Comments: {
+              select: {
+                id: true
+              },
+            }, Likes: {
+              select: {
+                id: true
+              }
             }
           }
         })
     
-        return posts.map((post) => {
+        return posts
+        .map((post) => {
           return {
             id: post.id,
             coverUrl: post.coverUrl,
-            content: post.content.substring(0, 115).concat('...'),
+            content: post.content.length > 115 ? post.content.substring(0, 115).concat('...') : post.content,
             createdAt: post.createdAt,
-            user: post.user
+            user: {
+              name: post.user.name,
+              profilePic: post.user.profilePic,
+              userClass: post.user.className.className,
+            },
+            likes: post.Likes.length,
+            comments: post.Comments.length
           }
         })
       })
