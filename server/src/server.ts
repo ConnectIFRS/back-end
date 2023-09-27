@@ -6,6 +6,8 @@ import fastify from 'fastify'
 import { resolve } from 'node:path'
 import { authRoutes } from './routes/authentication'
 import { classesRoutes } from './routes/classes'
+import { commentsRoutes } from './routes/comments'
+import { likesRoutes } from './routes/likes'
 import { postsRoutes } from './routes/posts'
 import { uploadRoutes } from './routes/upload'
 
@@ -29,7 +31,9 @@ app.register(require('@fastify/static'), {
 app.register(authRoutes);
 app.register(classesRoutes);
 app.register(uploadRoutes);
-app.register(postsRoutes)
+app.register(postsRoutes);
+app.register(likesRoutes);
+app.register(commentsRoutes);
 app.listen({
     port: 3333,
     host: '0.0.0.0',

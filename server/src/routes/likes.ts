@@ -34,13 +34,65 @@ export async function likesRoutes(app: FastifyInstance) {
 
     const { postId } = bodySchema.parse(request.body)
 
-    const like = await prisma.likes.create({
-      data: {
-        userId,
-        postId
-      },
+    const likeExists = await prisma.likes.findFirst({
+        where: {
+          userId,
+          postId,
+        },
+      });
+
+      if (likeExists) {
+          await prisma.likes.delete({
+              where: {
+                    id: likeExists.id
+              }
+          })
+    } else {
+        await prisma.likes.create({
+          data: {
+            userId,
+            postId
+          },
+        })
+    }
+    const post = await prisma.post.findUniqueOrThrow({
+        where: {
+            id: postId
+        }, include: {
+            user: {
+                select: {
+                    className: true,
+                    name: true,
+                    profilePic: true,
+                    id: true
+                }
+            }, Comments: {
+              select: {
+                id: true
+              },
+            }, Likes: {
+              select: {
+                userId: true
+              }
+            }
+          }
     })
 
-    return like
+    const likedByUser = post.Likes.some((like) => like.userId === userId);
+
+    return {
+        id: post.id,
+        coverUrl: post.coverUrl,
+        content: post.content.length > 115 ? post.content.substring(0, 115).concat('...') : post.content,
+        createdAt: post.createdAt,
+        user: {
+          name: post.user.name,
+          profilePic: post.user.profilePic,
+          userClass: post.user.className.className,
+        },
+        likes: post.Likes.length,
+        comments: post.Comments.length,
+        likedByUser
+      }
   })
 }

@@ -29,7 +29,7 @@ export async function postsRoutes(app: FastifyInstance) {
               },
             }, Likes: {
               select: {
-                id: true
+                userId: true
               }
             }
           }
@@ -37,6 +37,8 @@ export async function postsRoutes(app: FastifyInstance) {
     
         return posts
         .map((post) => {
+          const likedByUser = post.Likes.some((like) => like.userId === userId);
+
           return {
             id: post.id,
             coverUrl: post.coverUrl,
@@ -48,7 +50,8 @@ export async function postsRoutes(app: FastifyInstance) {
               userClass: post.user.className.className,
             },
             likes: post.Likes.length,
-            comments: post.Comments.length
+            comments: post.Comments.length,
+            likedByUser
           }
         })
       })
