@@ -39,4 +39,40 @@ export async function commentsRoutes(app: FastifyInstance) {
         }
     })
   })
+  app.post('/comments/:postId', async (request, reply) => {
+    const { sub: userId } = request.user
+    const paramsSchema = z.object({
+      postId: z.string().uuid(),
+    })
+
+    const { postId } = paramsSchema.parse(request.params)
+
+    const bodySchema = z.object({
+      content: z.string(),
+    })
+
+    const { content } = bodySchema.parse(request.body)
+
+    const comment = await prisma.comments.create({
+      data: {
+        content,
+        postId,
+        userId
+      }
+    })
+    if (comment) {
+      const comments = await prisma.comments.findMany({
+        where: {
+          postId
+        }, select: {
+          content: true,
+          createdAt: true,
+          user: true
+        }
+      })
+      return comments
+    } else {
+      reply.status(409).send('Impossible to create a comment')
+    }
+  })
 }
