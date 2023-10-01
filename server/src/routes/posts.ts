@@ -48,6 +48,7 @@ export async function postsRoutes(app: FastifyInstance) {
               name: post.user.name,
               profilePic: post.user.profilePic,
               userClass: post.user.className.className,
+              id: post.user.id
             },
             likes: post.Likes.length,
             comments: post.Comments.length,

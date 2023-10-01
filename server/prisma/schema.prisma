@@ -14,6 +14,7 @@ model Users {
   id          String        @id @default(uuid())
   name        String
   login       String        @unique
+  description String
   password    String
   className   Classes       @relation(fields: [classId], references: [id])
   classId     Int

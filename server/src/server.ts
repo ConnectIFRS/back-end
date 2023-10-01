@@ -7,9 +7,11 @@ import { resolve } from 'node:path'
 import { authRoutes } from './routes/authentication'
 import { classesRoutes } from './routes/classes'
 import { commentsRoutes } from './routes/comments'
+import { followRoutes } from './routes/follow'
 import { likesRoutes } from './routes/likes'
 import { postsRoutes } from './routes/posts'
 import { uploadRoutes } from './routes/upload'
+import { userRoutes } from './routes/user'
 
 
 const app = fastify()
@@ -34,6 +36,8 @@ app.register(uploadRoutes);
 app.register(postsRoutes);
 app.register(likesRoutes);
 app.register(commentsRoutes);
+app.register(userRoutes);
+app.register(followRoutes);
 app.listen({
     port: 3333,
     host: '0.0.0.0',
