@@ -128,3 +128,7 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+server/prisma/dev.db
+server/prisma/migrations/*
+server/uploads/posts/*
+server/uploads/profilePics/*
