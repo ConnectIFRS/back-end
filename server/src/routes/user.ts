@@ -13,7 +13,6 @@ export async function userRoutes(app: FastifyInstance) {
             id: z.string().uuid() 
         })
         const { id } = paramsSchema.parse(request.params)
-        console.log(id)
         const user = await prisma.users.findUniqueOrThrow({
             select: {
                 className: true,
