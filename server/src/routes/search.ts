@@ -95,4 +95,55 @@ export async function searchRoutes(app: FastifyInstance) {
           }
         })
     })
+
+    app.post('/search/following/:id', async (request, reply) => {
+        const { sub: userId } = request.user;
+        const paramsSchema = z.object({
+            id: z.string().uuid(),
+          })
+      
+          const { id } = paramsSchema.parse(request.params)
+      
+        const bodySchema = z.object({
+            userName: z.string()
+        })
+        const { userName } = bodySchema.parse(request.body);
+
+        const users = await prisma.followers.findMany({
+            where: {
+                userId: id,
+                user: {
+                    name: {
+                        contains: userName
+                    }
+                }
+              }, select: {
+                follower: {
+                    select: {
+                        className: true,
+                        name: true,
+                        profilePic: true,
+                        id: true,
+                        Followers: {
+                            select: {
+                                userId: true
+                            }
+                        }
+                    }
+                }
+            }
+        })
+        
+        return users.map((user) => {
+            const followedByUser = user.follower.Followers.some((follower) => follower.userId === userId);
+
+          return {
+            id: user.follower.id,
+            profilePic: user.follower.profilePic,
+            name: user.follower.name.length >=38 ? user.follower.name.substring(0, 38).concat('...') : user.follower.name,
+            userClass: user.follower.className.className.length >=38 ? user.follower.className.className.substring(0, 38).concat('...') : user.follower.className.className,
+            followedByUser
+          }
+        })
+    })
 }
