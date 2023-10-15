@@ -70,7 +70,21 @@ export async function postsRoutes(app: FastifyInstance) {
           where: {
             id,
           }, include: {
-            Comments: true,
+            Comments: {
+              select: {
+                id: true,
+                user: {
+                  select: {
+                    className: true,
+                    name: true,
+                    profilePic: true,
+                    id: true
+                  }
+                },
+                content: true,
+                createdAt: true
+              }
+            },
             Likes: true,
             user: {
               include: {
@@ -99,7 +113,8 @@ export async function postsRoutes(app: FastifyInstance) {
             },
             likes: post.Likes.length,
             comments: post.Comments.length,
-            likedByUser
+            likedByUser,
+            fullComments: post.Comments
           }
       })
 
