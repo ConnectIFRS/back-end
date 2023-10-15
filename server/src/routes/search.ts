@@ -17,7 +17,7 @@ export async function searchRoutes(app: FastifyInstance) {
         const users = await prisma.users.findMany({
             where: {
                 name: {
-                    contains: userName
+                    contains: userName,
                 }
             }, select: {
                 className: true,

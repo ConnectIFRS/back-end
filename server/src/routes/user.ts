@@ -1,10 +1,47 @@
+import { hash } from "bcrypt";
+import { randomInt } from "crypto";
 import { FastifyInstance } from "fastify";
+import { unlink } from "fs";
+import { resolve } from "path";
 import { z } from "zod";
 import { prisma } from "../lib/prisma";
 
 export async function userRoutes(app: FastifyInstance) {
     app.addHook('preHandler', async (request) => {
         await request.jwtVerify()
+    })
+
+    app.get('/user/:id', async (request, reply) => {
+        const { sub: userId } = request.user;
+        const paramsSchema = z.object({
+            id: z.string().uuid() 
+        })
+        const { id } = paramsSchema.parse(request.params)
+        if (id === userId) {
+            const user = await prisma.users.findUniqueOrThrow({
+                select: {
+                    name: true,
+                    id: true,
+                    Preferences: true,
+                    profilePic: true,
+                    description: true,
+                    classId: true,
+                },
+                where: {
+                  id,
+                }
+            })
+            return {
+                id: user.id,
+                preferences: user.Preferences,
+                profilePic: user.profilePic,
+                name: user.name,
+                classId: user.classId,
+                description: user.description,
+            }
+        } else {
+            return reply.status(401).send("Para ter acesso a este endpoint você deve passar o seu id de usuário como parâmetro!")
+        }
     })
 
     app.get('/users/:id', async (request, reply) => {
@@ -20,6 +57,8 @@ export async function userRoutes(app: FastifyInstance) {
                     select: {
                         id: true,
                         coverUrl: true
+                    }, orderBy: {
+                        createdAt: 'desc'
                     }
                 },
                 name: true,
@@ -68,23 +107,36 @@ export async function userRoutes(app: FastifyInstance) {
         const bodySchema = z.object({
             name: z.string(),
             profilePic: z.string().optional(),
-            description: z.string()
+            description: z.string(),
+            password: z.string(),
+            classId: z.number()
         })
 
-        const { name, profilePic, description } = bodySchema.parse(request.body)
+        const { name, profilePic, description, classId, password } = bodySchema.parse(request.body)
 
 
         let user = await prisma.users.findUniqueOrThrow({
             where: {
               id,
             }, include: {
-                className: true
+                className: true,
             }
         })
 
+        
         if (userId !== id) {
-        return reply.status(401).send()
+            return reply.status(401).send()
         }
+        const randomSalt = randomInt(10, 16)
+        const passwordHash = await hash(password, randomSalt)
+        const profilePicName = user.profilePic.split('/')
+        const ppPath = resolve(__dirname, '../../uploads/profilePics/', profilePicName[profilePicName.length - 1])
+        unlink(ppPath, (err) => {
+            if (err) {
+              console.error(`Erro ao excluir o arquivo: ${err}`);
+            } else {
+              console.log('Arquivo excluído com sucesso.');
+            }})
         user = await prisma.users.update({
             include: {
                 className: true
@@ -92,13 +144,12 @@ export async function userRoutes(app: FastifyInstance) {
             where: {
                 id
             },
-            data: profilePic ? {
+            data: {
                 name,
                 profilePic,
-                description
-            } : {
-                name,
-                description
+                description,
+                password: passwordHash,
+                classId
             }
         })
         const token = app.jwt.sign(

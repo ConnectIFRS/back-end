@@ -69,14 +69,38 @@ export async function postsRoutes(app: FastifyInstance) {
         const post = await prisma.post.findUniqueOrThrow({
           where: {
             id,
-          },
+          }, include: {
+            Comments: true,
+            Likes: true,
+            user: {
+              include: {
+                className: true
+              }
+            },
+          }
         })
     
-        if (post.userId !== userId) {
-          return reply.status(401).send()
-        }
+        // if (post.userId !== userId) {
+        //   return reply.status(401).send()
+        // }
     
-        return post
+        const likedByUser = post.Likes.some((like) => like.userId === userId);
+
+          return {
+            id: post.id,
+            coverUrl: post.coverUrl,
+            content: post.content.length > 115 ? post.content.substring(0, 115).concat('...') : post.content,
+            createdAt: post.createdAt,
+            user: {
+              name: post.user.name,
+              profilePic: post.user.profilePic,
+              userClass: post.user.className.className,
+              id: post.user.id
+            },
+            likes: post.Likes.length,
+            comments: post.Comments.length,
+            likedByUser
+          }
       })
 
       app.post('/posts', async (request) => {
