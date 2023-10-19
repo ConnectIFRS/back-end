@@ -95,6 +95,32 @@ export async function userRoutes(app: FastifyInstance) {
             followedByUser
         }
     })
+    app.get('/users/community', async (request, reply) => {
+        const { sub: userId } = request.user;
+        const user = await prisma.users.findUniqueOrThrow({
+            select: {
+                Followers: {
+                    select: {
+                        userId: true
+                    }
+                },
+                Following: {
+                    select: {
+                        id: true
+                    }
+                },
+                id: true,
+            },
+            where: {
+              id: userId,
+            }
+        })
+        return {
+            id: user.id,
+            followers: user.Followers,
+            following: user.Following,
+        }
+    })
     app.put('/users/:id', async (request, reply) => {
         const { sub: userId } = request.user
 
