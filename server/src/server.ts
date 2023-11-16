@@ -10,6 +10,7 @@ import { commentsRoutes } from './routes/comments'
 import { followRoutes } from './routes/follow'
 import { likesRoutes } from './routes/likes'
 import { postsRoutes } from './routes/posts'
+import { preferencesRoutes } from './routes/preferences'
 import { searchRoutes } from './routes/search'
 import { uploadRoutes } from './routes/upload'
 import { userRoutes } from './routes/user'
@@ -40,10 +41,11 @@ app.register(commentsRoutes);
 app.register(userRoutes);
 app.register(followRoutes);
 app.register(searchRoutes);
+app.register(preferencesRoutes);
 app.listen({
-    port: 3333,
-    host: '0.0.0.0',
-  })
+  port: 3333,
+  host: '0.0.0.0',
+})
   .then(() => {
     console.log('running server on http://localhost:3333')
   })
