@@ -11,21 +11,23 @@ datasource db {
 }
 
 model Users {
-  id          String        @id @default(uuid())
-  name        String
-  login       String        @unique
-  description String
-  password    String
-  className   Classes       @relation(fields: [classId], references: [id])
-  classId     Int
-  createdAt   DateTime      @default(now())
-  profilePic  String
-  Likes       Likes[]
-  Post        Post[]
-  Comments    Comments[]
-  Followers   Followers[]   @relation("UserFollower")
-  Following   Followers[]
-  Preferences Preferences[]
+  id             String        @id @default(uuid())
+  name           String
+  login          String        @unique
+  description    String
+  password       String
+  className      Classes       @relation(fields: [classId], references: [id])
+  classId        Int
+  createdAt      DateTime      @default(now())
+  profilePic     String
+  Likes          Likes[]
+  Post           Post[]
+  Comments       Comments[]
+  Followers      Followers[]   @relation("UserFollower")
+  Following      Followers[]
+  Preferences    Preferences[]
+  instagramName  String?
+  whatsappNumber String?
 }
 
 model Classes {
