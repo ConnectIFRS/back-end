@@ -13,10 +13,12 @@ export async function authRoutes(app: FastifyInstance) {
             password: z.string(),
             class: z.number(),
             description: z.string(),
-            profilePic: z.string().optional()
+            profilePic: z.string().optional(),
+            instagramName: z.string().optional(),
+            whatsappName: z.string().optional()
         })
 
-        const { name, login, password, class: userClass, profilePic, description } = bodySchema.parse(request.body)
+        const { name, login, password, class: userClass, profilePic, description, instagramName, whatsappName } = bodySchema.parse(request.body)
 
         const avatarUrl = profilePic ?? 'http://192.168.2.17:3333/uploads/profilePics/fc581326-d3f5-46bf-ac1a-30bcef3412d1.png'
 
