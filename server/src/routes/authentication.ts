@@ -40,7 +40,9 @@ export async function authRoutes(app: FastifyInstance) {
                     password: passwordHash,
                     classId: userClass,
                     profilePic: avatarUrl,
-                    description
+                    description,
+                    instagramName: instagramName ,
+
                 },
                 include: {
                     className: true
