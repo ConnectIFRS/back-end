@@ -42,8 +42,8 @@ export async function authRoutes(app: FastifyInstance) {
                     classId: userClass,
                     profilePic: avatarUrl,
                     description,
-                    instagramName,
-                    whatsappNumber,
+                    instagramName: instagramName ?? null,
+                    whatsappNumber: whatsappNumber ?? null,
                     Preferences: {
                         connect: preferences.map(preferenceId => ({ id: preferenceId }))
                     }
