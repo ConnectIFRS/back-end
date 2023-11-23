@@ -15,10 +15,11 @@ export async function authRoutes(app: FastifyInstance) {
             description: z.string(),
             profilePic: z.string().optional(),
             instagramName: z.string().optional(),
-            whatsappName: z.string().optional()
+            whatsappNumber: z.string().optional(),
+            preferences: z.array(z.number())
         })
 
-        const { name, login, password, class: userClass, profilePic, description, instagramName, whatsappName } = bodySchema.parse(request.body)
+        const { name, login, password, class: userClass, profilePic, description, instagramName, whatsappNumber, preferences } = bodySchema.parse(request.body)
 
         const avatarUrl = profilePic ?? 'http://192.168.2.17:3333/uploads/profilePics/fc581326-d3f5-46bf-ac1a-30bcef3412d1.png'
 
@@ -41,8 +42,11 @@ export async function authRoutes(app: FastifyInstance) {
                     classId: userClass,
                     profilePic: avatarUrl,
                     description,
-                    instagramName: instagramName ,
-
+                    instagramName,
+                    whatsappNumber,
+                    Preferences: {
+                        connect: preferences.map(preferenceId => ({ id: preferenceId }))
+                    }
                 },
                 include: {
                     className: true
