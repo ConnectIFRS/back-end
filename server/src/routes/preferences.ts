@@ -10,6 +10,10 @@ export async function preferencesRoutes(app: FastifyInstance) {
             orderBy: {
                 id: 'asc',
             },
+            select: {
+                id: true,
+                title: true
+            }
         })
         return preferences
     })

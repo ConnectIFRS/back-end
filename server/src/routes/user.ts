@@ -22,10 +22,17 @@ export async function userRoutes(app: FastifyInstance) {
                 select: {
                     name: true,
                     id: true,
-                    Preferences: true,
+                    Preferences: {
+                        select: {
+                            id: true,
+                            title: true
+                        }
+                    },
                     profilePic: true,
                     description: true,
                     classId: true,
+                    instagramName:true,
+                    whatsappNumber: true
                 },
                 where: {
                   id,
@@ -38,6 +45,8 @@ export async function userRoutes(app: FastifyInstance) {
                 name: user.name,
                 classId: user.classId,
                 description: user.description,
+                instagramName: user.instagramName,
+                whatsappNumber: user.whatsappNumber
             }
         } else {
             return reply.status(401).send("Para ter acesso a este endpoint você deve passar o seu id de usuário como parâmetro!")
@@ -75,7 +84,9 @@ export async function userRoutes(app: FastifyInstance) {
                 id: true,
                 Preferences: true,
                 profilePic: true,
-                description: true
+                description: true,
+                whatsappNumber: true,
+                instagramName: true
             },
             where: {
               id,
@@ -92,7 +103,9 @@ export async function userRoutes(app: FastifyInstance) {
             posts: user.Post,
             className: user.className,
             description: user.description,
-            followedByUser
+            followedByUser,
+            whatsappNumber: user.whatsappNumber,
+            instagramName: user.instagramName
         }
     })
     app.get('/users/community', async (request, reply) => {
@@ -135,10 +148,13 @@ export async function userRoutes(app: FastifyInstance) {
             profilePic: z.string().optional(),
             description: z.string(),
             password: z.string(),
-            classId: z.number()
+            classId: z.number(),
+            instagramName: z.string().optional(),
+            whatsappNumber: z.string().optional(),
+            preferences: z.array(z.number()),
         })
 
-        const { name, profilePic, description, classId, password } = bodySchema.parse(request.body)
+        const { name, profilePic, description, classId, password, preferences, instagramName, whatsappNumber } = bodySchema.parse(request.body)
 
 
         let user = await prisma.users.findUniqueOrThrow({
@@ -175,7 +191,12 @@ export async function userRoutes(app: FastifyInstance) {
                 profilePic,
                 description,
                 password: passwordHash,
-                classId
+                classId,
+                instagramName: instagramName ?? null,
+                whatsappNumber: whatsappNumber ?? null,
+                Preferences: {
+                    connect: preferences.map(preferenceId => ({ id: preferenceId }))
+                }
             }
         })
         const token = app.jwt.sign(
