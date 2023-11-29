@@ -162,6 +162,7 @@ export async function userRoutes(app: FastifyInstance) {
               id,
             }, include: {
                 className: true,
+                Preferences: true
             }
         })
 
@@ -179,6 +180,9 @@ export async function userRoutes(app: FastifyInstance) {
             } else {
               console.log('Arquivo excluído com sucesso.');
             }})
+
+            console.log(preferences)
+
         user = await prisma.users.update({
             include: {
                 className: true
@@ -195,6 +199,7 @@ export async function userRoutes(app: FastifyInstance) {
                 instagramName: instagramName ?? null,
                 whatsappNumber: whatsappNumber ?? null,
                 Preferences: {
+                    disconnect: user.Preferences.map(preference => ({id: preference.id})) ,
                     connect: preferences.map(preferenceId => ({ id: preferenceId }))
                 }
             }
